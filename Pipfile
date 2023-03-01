@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 django = "*"
 djongo = "*"
+djangorestframework = "*"
+pymongo = "==3.12.1"
 
 [dev-packages]
 
