@@ -2,9 +2,6 @@ from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from .models import *
-from djongo import models
-from django import forms
-import io
 
 class ProjectSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
