@@ -8,6 +8,7 @@ django = "*"
 djongo = "*"
 djangorestframework = "*"
 pymongo = "==3.12.1"
+pillow = "*"
 
 [dev-packages]
 
