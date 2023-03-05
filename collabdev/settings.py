@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = ["http://localhost:8080"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,7 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cd_main',
-    'corsheaders'
+
+    'corsheaders',
+
+    'rest_framework'
+
 ]
 
 MIDDLEWARE = [
