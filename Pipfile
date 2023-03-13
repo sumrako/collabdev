@@ -9,6 +9,7 @@ djongo = "*"
 djangorestframework = "*"
 pymongo = "==3.12.1"
 django-cors-headers = "*"
+pillow = "*"
 
 [dev-packages]
 

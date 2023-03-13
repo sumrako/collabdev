@@ -3,33 +3,33 @@ from django.db import models
 
 # Create your models here.
 class User(models.Model):
-    full_name = models.CharField(max_length=100, help_text="Enter your full name", blank=False)
-    date_of_birth = models.DateField(help_text="Enter your birthday", blank=False)
+    fullname = models.CharField(max_length=127, help_text="Enter your full name", blank=False)
+    birth_date = models.DateField(help_text="Enter your birthday", blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
-    update_at = models.DateTimeField(auto_now=True, blank=False)
+    updated_at = models.DateTimeField(auto_now=True, blank=False)
     soft_delete = models.BooleanField(default=False, blank=False)
     user_avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
     skills = models.ManyToManyField(to='Skill', blank=True)
 
     def __str__(self):
-        return self.full_name
+        return self.fullname
 
 
 class Skill(models.Model):
-    title = models.CharField(max_length=100, blank=False)
-    code = models.PositiveIntegerField()
+    title = models.CharField(max_length=127, blank=False)
+    code = models.CharField(max_length=127, blank=False)
 
     def __str__(self):
         return self.title
 
 
 class Project(models.Model):
-    title = models.CharField(max_length=100, help_text="Enter project title", blank=False)
-    description = models.CharField(max_length=5000, help_text="Enter project description", blank=False)
+    title = models.CharField(max_length=127, help_text="Enter project title", blank=False)
+    description = models.TextField(max_length=8192, help_text="Enter project description", blank=False)
     skills = models.ManyToManyField(to='Skill', blank=True)
     project_type = models.ForeignKey(to='ProjectTypes', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
-    update_at = models.DateTimeField(auto_now=True, blank=False)
+    updated_at = models.DateTimeField(auto_now=True, blank=False)
     soft_delete = models.BooleanField(default=False, blank=False)
 
     def __str__(self):
@@ -46,8 +46,8 @@ class UserProjectRelation(models.Model):
 
 
 class ProjectTypes(models.Model):
-    title = models.CharField(max_length=100, blank=False)
-    code = models.PositiveIntegerField(blank=False)
+    title = models.CharField(max_length=127, blank=False)
+    code = models.CharField(max_length=127, blank=False)
 
     def __str__(self):
         return self.title
