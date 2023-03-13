@@ -25,7 +25,7 @@ class Skill(models.Model):
 
 class Project(models.Model):
     title = models.CharField(max_length=127, help_text="Enter project title", blank=False)
-    description = models.CharField(max_length=8192, help_text="Enter project description", blank=False)
+    description = models.TextField(max_length=8192, help_text="Enter project description", blank=False)
     skills = models.ManyToManyField(to='Skill', blank=True)
     project_type = models.ForeignKey(to='ProjectTypes', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
