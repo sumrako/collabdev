@@ -31,7 +31,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
     updated_at = models.DateTimeField(auto_now=True, blank=False)
     soft_delete = models.BooleanField(default=False, blank=False)
-    status = models.ForeignKey(to='Status', on_delete=models.SET_NULL,blank=True,null=True)
+    status = models.ForeignKey(to='Status', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return self.title
