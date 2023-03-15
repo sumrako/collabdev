@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('projects/', ProjectAPIView.as_view()),
     path('type/', ProjectTypeAPIView.as_view()),
+    path('projects/<int:id>', ProjectOneAPIView.as_view()),
     path('skill/', ProjectSkillAPIView.as_view()),
 ]
