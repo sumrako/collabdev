@@ -10,7 +10,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_type = serializers.PrimaryKeyRelatedField(queryset=ProjectTypes.objects.all())
     class Meta:
         model = Project
-        fields = ("title", "description", "skills", "created_at", "update_at", "soft_delete", "project_type")
+        fields = ("title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
 
 class SkillsSerializer(serializers.ModelSerializer):
     skills = ProjectSerializer(many=True,read_only=True)
