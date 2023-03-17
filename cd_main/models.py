@@ -31,6 +31,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
     updated_at = models.DateTimeField(auto_now=True, blank=False)
     soft_delete = models.BooleanField(default=False, blank=False)
+    status = models.ForeignKey(to='Status', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -46,6 +47,14 @@ class UserProjectRelation(models.Model):
 
 
 class ProjectTypes(models.Model):
+    title = models.CharField(max_length=127, blank=False)
+    code = models.CharField(max_length=127, blank=False)
+
+    def __str__(self):
+        return self.title
+
+
+class Status(models.Model):
     title = models.CharField(max_length=127, blank=False)
     code = models.CharField(max_length=127, blank=False)
 
