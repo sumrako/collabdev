@@ -1,8 +1,5 @@
-from django.shortcuts import render
 from rest_framework import generics
-from .models import *
-import datetime
-from django.forms import model_to_dict
+
 from .serializers import *
 
 
