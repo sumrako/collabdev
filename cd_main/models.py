@@ -4,6 +4,7 @@ from django.db import models
 # Create your models here.
 class User(models.Model):
     fullname = models.CharField(max_length=127, help_text="Enter your full name", blank=False)
+    password = models.CharField(max_length=127, blank=False)
     birth_date = models.DateField(help_text="Enter your birthday", blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
     updated_at = models.DateTimeField(auto_now=True, blank=False)

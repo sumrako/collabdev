@@ -1,7 +1,15 @@
 from rest_framework import serializers
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
+
 from .models import *
+
+
+class UserSerializer(serializers.ModelSerializer):
+    projects = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), many=True)
+    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+
+    class Meta:
+        model = User
+        fields = ("id", "fullname", "skills", "projects", "birth_date", "user_avatar")
 
 
 class ProjectSerializer(serializers.ModelSerializer):
