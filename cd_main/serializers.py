@@ -5,8 +5,8 @@ from .models import *
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
-    project_type = serializers.PrimaryKeyRelatedField(queryset=ProjectTypes.objects.all())
+    skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
+    project_type = serializers.SlugRelatedField(slug_field='title', queryset=ProjectTypes.objects.all())
 
     class Meta:
         model = Project
