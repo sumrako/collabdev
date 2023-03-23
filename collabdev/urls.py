@@ -25,6 +25,8 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', UserAPIView.as_view()),
+    path('users/register', RegisterView.as_view()),
     path('projects/', ProjectAPIView.as_view()),
     path('type/', ProjectTypeAPIView.as_view()),
     path('skill/', ProjectSkillAPIView.as_view()),
