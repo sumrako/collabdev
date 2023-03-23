@@ -1,12 +1,20 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import *
+from .models import User
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
 
 
 # Create your views here.
 class UserAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_class = []
+    # permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         queryset = User.objects.all()
 
@@ -28,7 +36,7 @@ class UserAPIView(generics.ListAPIView):
         field, order = order_by.split()
         desk_ask = 1 if order == 'ask' else -1
 
-        return queryset.order_by(field)[offset: offset + limit: desk_ask]
+        return queryset.filter(soft_delete=False).order_by(field)[offset: offset + limit: desk_ask]
 
 
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
