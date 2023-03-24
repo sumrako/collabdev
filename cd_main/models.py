@@ -1,17 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import User as Usr
+from django.contrib.auth.models import AbstractUser
 
 
-class User(models.Model):
+class CustomUser(AbstractUser):
     birth_date = models.DateField(help_text="Enter your birthday", blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
     updated_at = models.DateTimeField(auto_now=True, blank=False)
     user_avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
     skills = models.ManyToManyField(to='Skill', blank=True)
-    user = models.ForeignKey(Usr, verbose_name='Пользователь', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.username
+        return self.username
 
 
 class Skill(models.Model):
@@ -37,7 +36,7 @@ class Project(models.Model):
 
 
 class UserProjectRelation(models.Model):
-    user_id = models.ManyToManyField(to=User, related_name='users')
+    user_id = models.ManyToManyField(to=CustomUser, related_name='users')
     project_id = models.ManyToManyField(to=Project, related_name='projects')
     created_at = models.DateTimeField(auto_now_add=True)
 
