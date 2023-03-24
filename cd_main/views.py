@@ -1,42 +1,41 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import *
-from .models import User as CustomUser
 
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+# class RegisterView(generics.CreateAPIView):
+#     queryset = User.objects.all()
+#     permission_classes = (AllowAny,)
+#     serializer_class = RegisterSerializer
 
 
 # Create your views here.
-class UserAPIView(generics.ListAPIView):
-    serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated, )
-
-    def get_queryset(self):
-        queryset = User.objects.all()
-
-        fullname = self.request.query_params.get('username')
-        if fullname is not None:
-            queryset = queryset.filter(username_iexact=fullname)
-
-        users_ids = self.request.query_params.get('user_ids')
-        if users_ids is not None:
-            queryset = queryset.filter(id__in=users_ids)
-
-        skills_ids = self.request.query_params.get('skills_ids')
-        if skills_ids is not None:
-            queryset = queryset.filter(skills__in=skills_ids)
-
-        limit = self.request.query_params.get('limit')
-        offset = self.request.query_params.get('offset')
-        order_by = self.request.query_params.get('order_by')
-        field, order = order_by.split()
-        desk_ask = 1 if order == 'ask' else -1
-
-        return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
+# class UserAPIView(generics.ListAPIView):
+#     serializer_class = UserSerializer
+#     permission_classes = (IsAuthenticated, )
+#
+#     def get_queryset(self):
+#         queryset = User.objects.all()
+#
+#         fullname = self.request.query_params.get('username')
+#         if fullname is not None:
+#             queryset = queryset.filter(username_iexact=fullname)
+#
+#         users_ids = self.request.query_params.get('user_ids')
+#         if users_ids is not None:
+#             queryset = queryset.filter(id__in=users_ids)
+#
+#         skills_ids = self.request.query_params.get('skills_ids')
+#         if skills_ids is not None:
+#             queryset = queryset.filter(skills__in=skills_ids)
+#
+#         limit = self.request.query_params.get('limit')
+#         offset = self.request.query_params.get('offset')
+#         order_by = self.request.query_params.get('order_by')
+#         field, order = order_by.split()
+#         desk_ask = 1 if order == 'ask' else -1
+#
+#         return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
 
 
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
