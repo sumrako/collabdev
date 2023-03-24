@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User as Usr
 
 
-# Create your models here.
-
 class User(models.Model):
     birth_date = models.DateField(help_text="Enter your birthday", blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False)
