@@ -16,7 +16,6 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -24,12 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://danila-abramov.site", "https://collabdev.danila-abramov.site"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'collabdev.danila-abramov.site', 'cdserver.danila-abramov.site']
+ALLOWED_HOSTS = []
+
 
 # Application definition
 
@@ -40,13 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cd_main',
-
+    'cd_main.apps.CdMainConfig',
     'corsheaders',
-
     'rest_framework'
-
 ]
+
+AUTH_USER_MODEL = 'cd_main.CustomUser'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
