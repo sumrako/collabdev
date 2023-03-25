@@ -1,26 +1,39 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import *
-from .models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
 
 
 class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        id_ = dict(response.data)['id']
+        user = CustomUser.objects.get(id=id_)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+                'user': response.data,
+                "jwt": {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token)
+                }
+        })
 
-# Create your views here.
+
 class UserAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        queryset = User.objects.all()
+        queryset = CustomUser.objects.all()
 
-        fullname = self.request.query_params.get('fullname')
+        fullname = self.request.query_params.get('username')
         if fullname is not None:
-            queryset = queryset.filter(fullname__iexact=fullname)
+            queryset = queryset.filter(username_iexact=fullname)
 
         users_ids = self.request.query_params.get('user_ids')
         if users_ids is not None:
@@ -36,7 +49,7 @@ class UserAPIView(generics.ListAPIView):
         field, order = order_by.split()
         desk_ask = 1 if order == 'ask' else -1
 
-        return queryset.filter(soft_delete=False).order_by(field)[offset: offset + limit: desk_ask]
+        return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
 
 
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):

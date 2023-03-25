@@ -1,27 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User as Usr
-
-
-# Create your models here.
-
-class User(models.Model):
-    birth_date = models.DateField(help_text="Enter your birthday", blank=False)
-    created_at = models.DateTimeField(auto_now_add=True, blank=False)
-    updated_at = models.DateTimeField(auto_now=True, blank=False)
-    user_avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
-    skills = models.ManyToManyField(to='Skill', blank=True)
-    user = models.ForeignKey(Usr, verbose_name='Пользователь', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user.username
-
-
-class Skill(models.Model):
-    title = models.CharField(max_length=127, blank=False)
-    code = models.CharField(max_length=127, blank=False)
-
-    def __str__(self):
-        return self.title
+from django.contrib.auth.models import AbstractUser
 
 
 class Project(models.Model):
@@ -38,13 +16,30 @@ class Project(models.Model):
         return self.title
 
 
-class UserProjectRelation(models.Model):
-    user_id = models.ManyToManyField(to=User, related_name='users')
-    project_id = models.ManyToManyField(to=Project, related_name='projects')
-    created_at = models.DateTimeField(auto_now_add=True)
+class CustomUser(AbstractUser):
+    birth_date = models.DateField(help_text="Enter your birthday", blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, blank=False)
+    updated_at = models.DateTimeField(auto_now=True, blank=False)
+    user_avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
+    skills = models.ManyToManyField(to='Skill', blank=True)
+    projects = models.ManyToManyField(Project, through='UserProjectRelation')
 
     def __str__(self):
-        return f"{self.user_id}-{self.project_id}"
+        return self.username
+
+
+class Skill(models.Model):
+    title = models.CharField(max_length=127, blank=False)
+    code = models.CharField(max_length=127, blank=False)
+
+    def __str__(self):
+        return self.title
+
+
+class UserProjectRelation(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class ProjectTypes(models.Model):
