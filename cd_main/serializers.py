@@ -4,7 +4,6 @@ from .models import Project, Skill, ProjectTypes
 from .models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -20,11 +19,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'password1', 'password2', 'birth_date', 'email', 'first_name', 'last_name')
-        # extra_kwargs = {
-        #     'first_name': {'required': True},
-        #     'last_name': {'required': True},
-        # }
+        fields = ('id', 'username', 'password1', 'password2', 'birth_date', 'email', 'first_name', 'last_name')
 
     def validate(self, attrs):
         if attrs['password1'] != attrs['password2']:
@@ -44,11 +39,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password1'])
         user.save()
 
-        refresh = RefreshToken.for_user(user)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
