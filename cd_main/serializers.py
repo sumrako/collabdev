@@ -82,12 +82,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ("title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
 
 
-class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
-    lookup_field = 'id'
-    queryset = Project.objects.all().filter(soft_delete__in=[False])
-    serializer_class = ProjectSerializer
-
-
 class SkillsSerializer(serializers.ModelSerializer):
     skills = ProjectSerializer(many=True, read_only=True)
 

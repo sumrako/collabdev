@@ -45,7 +45,7 @@ class RegisterView(generics.CreateAPIView):
         }, status=status.HTTP_200_OK)
 
 
-class MeView(generics.ListAPIView):
+class SingleUserView(generics.ListAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
@@ -61,7 +61,6 @@ class MeView(generics.ListAPIView):
 
 class UserAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = CustomUser.objects.all()
@@ -93,6 +92,12 @@ class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
+    lookup_field = 'id'
+    queryset = Project.objects.all().filter(soft_delete__in=[False])
+    serializer_class = ProjectSerializer
 
 
 class ProjectTypeAPIView(generics.ListAPIView):

@@ -28,7 +28,7 @@ urlpatterns = [
     path('users/', UserAPIView.as_view()),
     path('auth/register', RegisterView.as_view()),
     path('auth/login', LoginView.as_view()),
-    path('auth/me', MeView.as_view()),
+    path('auth/me', SingleUserView.as_view()),
     path('projects/', ProjectAPIView.as_view()),
     path('projects/<int:id>/', ProjectOneAPIView.as_view(), name='project_detail'),
     path('type/', ProjectTypeAPIView.as_view()),
