@@ -1,9 +1,30 @@
-from rest_framework import serializers
-
+from rest_framework import serializers, generics
 from .models import Project, Skill, ProjectTypes
 from .models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            msg = 'Unable to log in with provided credentials.'
+            raise serializers.ValidationError(msg, code='authorization')
+
+        if not user.check_password(password):
+            msg = 'Unable to log in with provided credentials.'
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -53,12 +74,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
-    project_type = serializers.PrimaryKeyRelatedField(queryset=ProjectTypes.objects.all())
+    skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
+    project_type = serializers.SlugRelatedField(slug_field='title', queryset=ProjectTypes.objects.all())
 
     class Meta:
         model = Project
         fields = ("title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+
+
+class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
+    lookup_field = 'id'
+    queryset = Project.objects.all().filter(soft_delete__in=[False])
+    serializer_class = ProjectSerializer
 
 
 class SkillsSerializer(serializers.ModelSerializer):
