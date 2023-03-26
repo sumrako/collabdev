@@ -1,4 +1,8 @@
+from rest_framework import generics
+from .models import *
+
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -98,6 +102,9 @@ class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
     queryset = Project.objects.all().filter(soft_delete__in=[False])
     serializer_class = ProjectSerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 
 class ProjectTypeAPIView(generics.ListAPIView):
