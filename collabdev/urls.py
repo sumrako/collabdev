@@ -32,7 +32,6 @@ urlpatterns = [
     path('projects/', ProjectAPIView.as_view()),
     path('projects/<int:id>/', ProjectOneAPIView.as_view(), name='project_detail'),
     path('type/', ProjectTypeAPIView.as_view()),
-    path('projects/<int:id>', ProjectOneAPIView.as_view()),
     path('skill/', ProjectSkillAPIView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

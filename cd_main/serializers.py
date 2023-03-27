@@ -1,5 +1,5 @@
 from rest_framework import serializers, generics
-from .models import Project, Skill, ProjectTypes
+from .models import Project, Skill, ProjectTypes, UserProjectRelation
 from .models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
@@ -76,10 +76,20 @@ class UserSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
     project_type = serializers.SlugRelatedField(slug_field='title', queryset=ProjectTypes.objects.all())
+    users = UserSerializer(read_only=True, many=True)
 
     class Meta:
         model = Project
-        fields = ("title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+        fields = ("users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+
+
+class UserProjectRelationSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
+
+    class Meta:
+        model = UserProjectRelation
+        fields = ('user', 'project', 'created_at')
 
 
 class SkillsSerializer(serializers.ModelSerializer):

@@ -102,6 +102,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='project',
+            name='user',
+            field=models.ManyToManyField(through='cd_main.UserProjectRelation', to='cd_main.customuser'),
+        ),
+        migrations.AddField(
+            model_name='project',
             name='status',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='cd_main.status'),
         ),
