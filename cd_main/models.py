@@ -12,6 +12,8 @@ class Project(models.Model):
     soft_delete = models.BooleanField(default=False, blank=False)
     status = models.ForeignKey(to='Status', on_delete=models.SET_NULL, blank=True, null=True)
 
+    users = models.ManyToManyField(to='CustomUser', through='UserProjectRelation')
+
     def __str__(self):
         return self.title
 
@@ -37,8 +39,8 @@ class Skill(models.Model):
 
 
 class UserProjectRelation(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='project_relations')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='user_relations')
     created_at = models.DateTimeField(auto_now_add=True)
 
 

@@ -1,8 +1,4 @@
-from rest_framework import generics
-from .models import *
-
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -93,9 +89,14 @@ class UserAPIView(generics.ListAPIView):
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
     queryset = Project.objects.all().filter(soft_delete__in=[False])
     serializer_class = ProjectSerializer
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save()
+        self.check_permissions(self.request)
+        project = serializer.save()
+        user_project_relation_serializer = UserProjectRelationSerializer(data={'user': self.request.user.id, 'project': project.id})
+        if user_project_relation_serializer.is_valid():
+            user_project_relation_serializer.save()
 
 
 class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
