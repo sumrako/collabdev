@@ -6,11 +6,12 @@ from rest_framework.validators import UniqueValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
+    projects = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), many=True)
     skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
 
     class Meta:
         model = CustomUser
-        fields = ("username", "first_name", "last_name", "email", "skills", "birth_date", "user_avatar")
+        fields = ("username", "first_name", "last_name", "email", "skills", "birth_date", "user_avatar", "projects")
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -23,9 +24,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ("users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
 
 
-class UserWithProjectsSerializer(serializers.ModelSerializer):
+class UserDetailsSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(read_only=True, many=True)
-    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+    skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
 
     class Meta:
         model = CustomUser
