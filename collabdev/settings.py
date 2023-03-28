@@ -23,15 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://danila-abramov.site", "https://collabdev.danila-abramov.site"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://collabdev.danila-abramov.site",
+                         'https://collabdev.abramov.pw', 'https://collabdev.ru']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'collabdev.danila-abramov.site', 'cdserver.danila-abramov.site']
+ALLOWED_HOSTS = ['127.0.0.1', 'api-collabdev.abramov.pw', 'api.collabdev.ru']
 
-#USE_X_FORWARDED_HOST = True
-FORCE_SCRIPT_NAME = '/api'
+# USE_X_FORWARDED_HOST = True
+# FORCE_SCRIPT_NAME = '/api'
 
 # Application definition
 
