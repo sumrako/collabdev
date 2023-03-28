@@ -26,6 +26,7 @@ from cd_main.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', UserAPIView.as_view()),
+    path('user/projects/<str:username>/', UserWithProjectsView.as_view()),
     path('auth/register', RegisterView.as_view()),
     path('auth/login', LoginView.as_view()),
     path('auth/me', SingleUserView.as_view()),

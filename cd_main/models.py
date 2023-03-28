@@ -11,7 +11,6 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True, blank=False)
     soft_delete = models.BooleanField(default=False, blank=False)
     status = models.ForeignKey(to='Status', on_delete=models.SET_NULL, blank=True, null=True)
-
     users = models.ManyToManyField(to='CustomUser', through='UserProjectRelation')
 
     def __str__(self):
