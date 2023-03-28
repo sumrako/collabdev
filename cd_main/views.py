@@ -86,8 +86,8 @@ class UserAPIView(generics.ListAPIView):
         return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
 
 
-class UserWithProjectsView(generics.ListAPIView):
-    serializer_class = UserWithProjectsSerializer
+class UserDetailsView(generics.ListAPIView):
+    serializer_class = UserDetailsSerializer
 
     def get_queryset(self):
         username = self.kwargs.get('username')
