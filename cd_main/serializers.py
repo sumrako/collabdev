@@ -5,6 +5,33 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 
 
+class UserSerializer(serializers.ModelSerializer):
+    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ("username", "first_name", "last_name", "email", "skills", "birth_date", "user_avatar")
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
+    project_type = serializers.SlugRelatedField(slug_field='title', queryset=ProjectTypes.objects.all())
+    users = UserSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Project
+        fields = ("users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+
+
+class UserWithProjectsSerializer(serializers.ModelSerializer):
+    projects = ProjectSerializer(read_only=True, many=True)
+    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ("username", "first_name", "last_name", "email", "skills", "projects", "birth_date", "user_avatar")
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
@@ -40,7 +67,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'password1', 'password2', 'birth_date', 'email', 'first_name', 'last_name')
+        fields = ('id', 'username', 'password1', 'password2', 'birth_date', 'email', 'first_name', 'last_name', "projects")
 
     def validate(self, attrs):
         if attrs['password1'] != attrs['password2']:
@@ -63,26 +90,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
-    projects = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), many=True)
-    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ("id", "username", "first_name", "last_name", "email",
-                  "skills", "projects", "birth_date", "user_avatar")
-
-
-class ProjectSerializer(serializers.ModelSerializer):
-    skills = serializers.SlugRelatedField(slug_field='title', queryset=Skill.objects.all(), many=True)
-    project_type = serializers.SlugRelatedField(slug_field='title', queryset=ProjectTypes.objects.all())
-    users = UserSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Project
-        fields = ("users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
-
-
 class UserProjectRelationSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
@@ -97,7 +104,7 @@ class SkillsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ("skills", "title")
+        fields = '__all__'
 
 
 class ProjectTypesSerializer(serializers.ModelSerializer):

@@ -1,4 +1,6 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
+
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -19,10 +21,8 @@ class LoginView(generics.GenericAPIView):
 
         return Response({
             'user': UserSerializer(user).data,
-            'jwt': {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
         }, status=status.HTTP_200_OK)
 
 
@@ -37,26 +37,26 @@ class RegisterView(generics.CreateAPIView):
         user = CustomUser.objects.get(id=id_)
         refresh = RefreshToken.for_user(user)
         return Response({
-                'user': response.data,
-                "jwt": {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token)
-                }
+            'user': response.data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
         }, status=status.HTTP_200_OK)
 
 
-class SingleUserView(generics.ListAPIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+class SingleUserView(APIView):
     serializer_class = UserSerializer
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
-            user = CustomUser.objects.get(id=request.user.id)
+            refresh_token = request.data.get('refresh')
+            refresh = RefreshToken(refresh_token)
+            token = refresh.access_token
+            user = CustomUser.objects.get(id=refresh.payload['user_id'])
             serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'user': serializer.data, 'access': str(token), 'refresh': str(refresh)},
+                            status=status.HTTP_200_OK)
+        except (CustomUser.DoesNotExist, TypeError, ValueError):
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserAPIView(generics.ListAPIView):
@@ -86,6 +86,15 @@ class UserAPIView(generics.ListAPIView):
         return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
 
 
+class UserWithProjectsView(generics.ListAPIView):
+    serializer_class = UserWithProjectsSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        queryset = CustomUser.objects.filter(username=username)
+        return queryset
+
+
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
     queryset = Project.objects.all().filter(soft_delete__in=[False])
     serializer_class = ProjectSerializer
@@ -94,7 +103,8 @@ class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
     def perform_create(self, serializer):
         self.check_permissions(self.request)
         project = serializer.save()
-        user_project_relation_serializer = UserProjectRelationSerializer(data={'user': self.request.user.id, 'project': project.id})
+        user_project_relation_serializer = UserProjectRelationSerializer(
+            data={'user': self.request.user.id, 'project': project.id})
         if user_project_relation_serializer.is_valid():
             user_project_relation_serializer.save()
 
