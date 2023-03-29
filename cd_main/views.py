@@ -1,15 +1,13 @@
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status
 
 
 class LoginView(generics.GenericAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -113,9 +111,16 @@ class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
     queryset = Project.objects.all().filter(soft_delete__in=[False])
     serializer_class = ProjectSerializer
+    permission_classes = [AllowAny]
 
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        self.check_permissions(self.request)
+        project_id = kwargs.get('id')
+        user_projects = UserSerializer(request.user).data.get('projects')
+        if project_id in user_projects:
+            return self.update(request, *args, **kwargs)
+        else:
+            return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectTypeAPIView(generics.ListAPIView):

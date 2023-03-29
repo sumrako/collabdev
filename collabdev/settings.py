@@ -29,10 +29,7 @@ CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://collabdev.danila-abra
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'api-collabdev.abramov.pw', 'api.collabdev.ru']
-
-# USE_X_FORWARDED_HOST = True
-# FORCE_SCRIPT_NAME = '/api'
+ALLOWED_HOSTS = ['127.0.0.1', 'api.collabdev.ru']
 
 # Application definition
 
