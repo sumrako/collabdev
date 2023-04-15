@@ -107,7 +107,7 @@ class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
             user_project_relation_serializer.save()
 
 
-class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
+class ProjectOneAPIView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
     queryset = Project.objects.all().filter(soft_delete__in=[False])
     serializer_class = ProjectSerializer
@@ -121,6 +121,12 @@ class ProjectOneAPIView(generics.RetrieveUpdateAPIView):
             return self.update(request, *args, **kwargs)
         else:
             return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.soft_delete = True
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProjectTypeAPIView(generics.ListAPIView):
