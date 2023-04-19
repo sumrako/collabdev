@@ -67,21 +67,21 @@ class UserAPIView(generics.ListAPIView):
         if fullname is not None:
             queryset = queryset.filter(username_iexact=fullname)
 
-        users_ids = self.request.query_params.get('user_ids')
-        if users_ids is not None:
-            queryset = queryset.filter(id__in=users_ids)
+        users_ids = self.request.query_params.getlist('users_ids')
+        if users_ids:
+            queryset = queryset.filter(id__in=list(map(int, users_ids)))
 
-        skills_ids = self.request.query_params.get('skills_ids')
-        if skills_ids is not None:
+        skills_ids = self.request.query_params.getlist('skills_ids')
+        if skills_ids:
             queryset = queryset.filter(skills__in=skills_ids)
 
-        limit = self.request.query_params.get('limit')
-        offset = self.request.query_params.get('offset')
+        limit = int(self.request.query_params.get('limit'))
+        offset = int(self.request.query_params.get('offset'))
         order_by = self.request.query_params.get('order_by')
-        field, order = order_by.split()
+        field, order = order_by.split(',')
         desk_ask = 1 if order == 'ask' else -1
 
-        return queryset.filter(is_active=True).order_by(field)[offset: offset + limit: desk_ask]
+        return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 
 
 class UserDetailsView(generics.ListAPIView):
@@ -121,7 +121,7 @@ class ProjectOneAPIView(generics.RetrieveUpdateDestroyAPIView):
             return self.update(request, *args, **kwargs)
         else:
             return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.soft_delete = True
