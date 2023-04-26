@@ -29,6 +29,22 @@ class CustomUser(AbstractUser):
         return self.username
 
 
+class NotificationStatus(models.Model):
+    title = models.CharField(max_length=127, blank=False)
+    code = models.CharField(max_length=127, blank=False)
+
+
+class Notification(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, blank=False)
+    updated_at = models.DateTimeField(auto_now=True, blank=False)
+    notification_status = models.ForeignKey(to='NotificationStatus', on_delete=models.SET_NULL, blank=False, null=True)
+    request_user = models.ForeignKey(CustomUser, related_name='request',
+                                     on_delete=models.SET_NULL, blank=False, null=True)
+    response_user = models.ForeignKey(CustomUser, related_name='response',
+                                      on_delete=models.SET_NULL, blank=False, null=True)
+    text = models.TextField(max_length=8192, blank=True)
+
+
 class Skill(models.Model):
     title = models.CharField(max_length=127, blank=False)
     code = models.CharField(max_length=127, blank=False)
