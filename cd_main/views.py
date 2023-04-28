@@ -122,17 +122,51 @@ class NotificationAPIView(generics.ListAPIView):
         limit = self.request.query_params.get('limit')
         limit = 10 if limit is None else int(limit)
 
-        offset = int(self.request.query_params.get('offset'))
+        offset = self.request.query_params.get('offset')
         offset = 0 if offset is None else int(offset)
 
         order_by = self.request.query_params.get('order_by')
-        field, order = order_by.split(',')
-        desk_ask = 1 if order == 'ask' else -1
+        field, order = ('created_at', 'asc') if order_by is None else order_by.split(',')
 
-        return queryset.filter.order_by(field)[offset: offset + limit: desk_ask]
+        desk_ask = 1 if order == 'asc' else -1
+
+        return queryset.order_by(field)[offset: offset + limit: desk_ask]
 
 
 class UserAPIView(generics.ListAPIView):
+    """ API-ручка к пользователям User
+        к запросу отвечающему следующей спецификации:
+
+        GET '/users' HTTP/1.1
+            Query:
+                user_ids: list[int], Optional - filter
+                last_name: str, Optional - filter
+                first_name: str, Optional - filter
+                username: str, Optional - filter
+                email: str, Optional - filter
+                skills_ids: list[int], Optional - filter
+
+                order_by: str = 'fullname desc'
+                limit: int, Optional, default 10, max 10000
+                offset: int, Optional, default 0
+
+            Response json utf-8 {
+                [
+                    {
+                        user_id: int
+                        username: str,
+                        first_name: str,
+                        last_name: str,
+                    skills_ids: list[int]
+                        projects_ids: list[int]
+                    birth_date: datetime,
+                        user_avatar: str
+                    },...
+                ]
+            }
+            Пример: https://collabdev.ru/users/?users_ids=2&users_ids=3&skills_ids=2
+            Ответ: объекты CustomUser отвечающие параметрам запросов
+        """
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -157,8 +191,9 @@ class UserAPIView(generics.ListAPIView):
         offset = 0 if offset is None else int(offset)
 
         order_by = self.request.query_params.get('order_by')
-        field, order = order_by.split(',')
-        desk_ask = 1 if order == 'ask' else -1
+        field, order = ('created_at', 'asc') if order_by is None else order_by.split(',')
+
+        desk_ask = 1 if order == 'asc' else -1
 
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 
