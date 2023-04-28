@@ -132,6 +132,23 @@ class NotificationAPIView(generics.ListAPIView):
 
         return queryset.order_by(field)[offset: offset + limit: desk_ask]
 
+    def post(self, serializer):
+        request_user = ProjectSerializer(Project.objects.get(id=self.request.data.get('project'))).data.get('users')[0][
+            'id']
+        data = {'response_user': self.request.user.id, 'project': self.request.data.get('project'),
+                'request_user': request_user, 'text': self.request.data.get('text'),
+                'notification_status': 1}
+        try:
+            Notification.objects.get(request_user=data['request_user'], project=data['project'])
+        except:
+            user_project_relation_serializer = NotificationSerializer(data=data)
+            if user_project_relation_serializer.is_valid():
+                user_project_relation_serializer.save()
+                return Response({'message': 'Запрос отправлен'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Что пошло не так...'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Запрос уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserAPIView(generics.ListAPIView):
     """ API-ручка к пользователям User
