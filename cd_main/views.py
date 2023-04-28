@@ -66,6 +66,7 @@ class NotificationAPIView(generics.ListAPIView):
                 notification_ids: list[int], Optional - filter
                 request_user_ids: list[int], Optional - filter
                 response_user_ids: list[int], Optional - filter
+                project_ids: list[int], Optional - filter
                 notification_status_ids: list[int], Optional - filter
                 key_words: str, Optional - filter
 
@@ -109,6 +110,10 @@ class NotificationAPIView(generics.ListAPIView):
         response_user_ids = self.request.query_params.getlist('response_user_ids')
         if response_user_ids:
             queryset = queryset.filter(response_user__id__in=list(map(int, response_user_ids)))
+
+        project_ids = self.request.query_params.getlist('project_ids')
+        if project_ids:
+            queryset = queryset.filter(project__id__in=list(map(int, project_ids)))
 
         status_ids = self.request.query_params.getlist('notification_status_ids')
         if status_ids:
