@@ -237,10 +237,15 @@ class ProjectOneAPIView(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
+        self.check_permissions(self.request)
         instance = self.get_object()
-        instance.soft_delete = True
-        instance.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        project = ProjectSerializer(instance)
+        if request.user.id == project.data.get('users')[0]['id']:
+            instance.soft_delete = True
+            instance.save()
+            return Response({'message': 'Project deleted successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectTypeAPIView(generics.ListAPIView):
