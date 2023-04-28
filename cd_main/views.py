@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from .serializers import *
@@ -215,13 +216,19 @@ class UserAPIView(generics.ListAPIView):
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 
 
-class UserDetailsView(generics.ListAPIView):
+class UserDetailsView(generics.RetrieveAPIView):
     serializer_class = UserDetailsSerializer
 
-    def get_queryset(self):
+    def get_object(self):
         username = self.kwargs.get('username')
-        queryset = CustomUser.objects.filter(username=username)
-        return queryset
+        user = CustomUser.objects.get(username=username)
+        user_serializer = UserSerializer(user)
+        new_projects = Project.objects.all().filter(id__in=user_serializer.data.get('projects'), soft_delete__in=[False])
+        user.projects.set(new_projects)
+        queryset = user
+        if queryset is not None:
+            return user
+        raise Http404('Пользователь не найден')
 
 
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
