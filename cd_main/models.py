@@ -42,6 +42,7 @@ class Notification(models.Model):
                                      on_delete=models.SET_NULL, blank=False, null=True)
     response_user = models.ForeignKey(CustomUser, related_name='response',
                                       on_delete=models.SET_NULL, blank=False, null=True)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, blank=False, null=True)
     text = models.TextField(max_length=8192, blank=True)
 
 

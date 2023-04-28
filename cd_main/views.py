@@ -58,6 +58,36 @@ class SingleUserView(APIView):
 
 
 class NotificationAPIView(generics.ListAPIView):
+    """ API-ручка к оповещениям (запросам на присоединение к проекту)
+        в ответ на запрос отвечающий следующей спецификации:
+
+            GET '/notifications' HTTP/1.1
+            Query:
+                notification_ids: list[int], Optional - filter
+                request_user_ids: list[int], Optional - filter
+                response_user_ids: list[int], Optional - filter
+                notification_status_ids: list[int], Optional - filter
+                key_words: str, Optional - filter
+
+                order_by: str = 'datetime desc'
+                limit: int, Optional, default 10, max 10000
+                offset: int, Optional, default 0
+
+            Response json utf-8 {
+                [
+                    {
+                        id: int
+                        text: str
+                    request_user_id: int
+                        response_user_id: int
+                        created_at: datetime
+                    notification_status_id: int
+                    },...
+                ]
+            }
+            Пример: https://collabdev.ru/notifications/?notifications_ids=2&notifications_ids=3&notification_status_ids=2
+        Ответ: объекты Notification отвечающие параметрам запросов
+    """
     serializer_class = NotificationSerializer
 
     def get_queryset(self):
@@ -84,8 +114,12 @@ class NotificationAPIView(generics.ListAPIView):
         if status_ids:
             queryset = queryset.filter(notification_status__id__in=list(map(int, status_ids)))
 
-        limit = int(self.request.query_params.get('limit'))
+        limit = self.request.query_params.get('limit')
+        limit = 10 if limit is None else int(limit)
+
         offset = int(self.request.query_params.get('offset'))
+        offset = 0 if offset is None else int(offset)
+
         order_by = self.request.query_params.get('order_by')
         field, order = order_by.split(',')
         desk_ask = 1 if order == 'ask' else -1
@@ -111,8 +145,12 @@ class UserAPIView(generics.ListAPIView):
         if skills_ids:
             queryset = queryset.filter(skills__id__in=skills_ids)
 
-        limit = int(self.request.query_params.get('limit'))
+        limit = self.request.query_params.get('limit')
+        limit = 10 if limit is None else int(limit)
+
         offset = int(self.request.query_params.get('offset'))
+        offset = 0 if offset is None else int(offset)
+
         order_by = self.request.query_params.get('order_by')
         field, order = order_by.split(',')
         desk_ask = 1 if order == 'ask' else -1
