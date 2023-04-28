@@ -57,7 +57,116 @@ class SingleUserView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class NotificationAPIView(generics.ListAPIView):
+    """ API-ручка к оповещениям (запросам на присоединение к проекту)
+        в ответ на запрос отвечающий следующей спецификации:
+
+            GET '/notifications' HTTP/1.1
+            Query:
+                notification_ids: list[int], Optional - filter
+                request_user_ids: list[int], Optional - filter
+                response_user_ids: list[int], Optional - filter
+                project_ids: list[int], Optional - filter
+                notification_status_ids: list[int], Optional - filter
+                key_words: str, Optional - filter
+
+                order_by: str = 'datetime desc'
+                limit: int, Optional, default 10, max 10000
+                offset: int, Optional, default 0
+
+            Response json utf-8 {
+                [
+                    {
+                        id: int
+                        text: str
+                    request_user_id: int
+                        response_user_id: int
+                        created_at: datetime
+                    notification_status_id: int
+                    },...
+                ]
+            }
+            Пример: https://collabdev.ru/notifications/?notifications_ids=2&notifications_ids=3&notification_status_ids=2
+        Ответ: объекты Notification отвечающие параметрам запросов
+    """
+    serializer_class = NotificationSerializer
+
+    def get_queryset(self):
+        queryset = Notification.objects.all()
+
+        key_words = self.request.query_params.get('key_words')
+        if key_words is not None:
+            for key_word in key_words:
+                queryset = queryset.filter(text__contains=key_word)
+
+        notification_ids = self.request.query_params.getlist('notification_ids')
+        if notification_ids:
+            queryset = queryset.filter(id__in=list(map(int, notification_ids)))
+
+        request_user_ids = self.request.query_params.getlist('request_user_ids')
+        if request_user_ids:
+            queryset = queryset.filter(request_user__id__in=list(map(int, request_user_ids)))
+
+        response_user_ids = self.request.query_params.getlist('response_user_ids')
+        if response_user_ids:
+            queryset = queryset.filter(response_user__id__in=list(map(int, response_user_ids)))
+
+        project_ids = self.request.query_params.getlist('project_ids')
+        if project_ids:
+            queryset = queryset.filter(project__id__in=list(map(int, project_ids)))
+
+        status_ids = self.request.query_params.getlist('notification_status_ids')
+        if status_ids:
+            queryset = queryset.filter(notification_status__id__in=list(map(int, status_ids)))
+
+        limit = self.request.query_params.get('limit')
+        limit = 10 if limit is None else int(limit)
+
+        offset = self.request.query_params.get('offset')
+        offset = 0 if offset is None else int(offset)
+
+        order_by = self.request.query_params.get('order_by')
+        field, order = ('created_at', 'asc') if order_by is None else order_by.split(',')
+
+        desk_ask = 1 if order == 'asc' else -1
+
+        return queryset.order_by(field)[offset: offset + limit: desk_ask]
+
+
 class UserAPIView(generics.ListAPIView):
+    """ API-ручка к пользователям User
+        к запросу отвечающему следующей спецификации:
+
+        GET '/users' HTTP/1.1
+            Query:
+                user_ids: list[int], Optional - filter
+                last_name: str, Optional - filter
+                first_name: str, Optional - filter
+                username: str, Optional - filter
+                email: str, Optional - filter
+                skills_ids: list[int], Optional - filter
+
+                order_by: str = 'fullname desc'
+                limit: int, Optional, default 10, max 10000
+                offset: int, Optional, default 0
+
+            Response json utf-8 {
+                [
+                    {
+                        user_id: int
+                        username: str,
+                        first_name: str,
+                        last_name: str,
+                    skills_ids: list[int]
+                        projects_ids: list[int]
+                    birth_date: datetime,
+                        user_avatar: str
+                    },...
+                ]
+            }
+            Пример: https://collabdev.ru/users/?users_ids=2&users_ids=3&skills_ids=2
+            Ответ: объекты CustomUser отвечающие параметрам запросов
+        """
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -73,13 +182,18 @@ class UserAPIView(generics.ListAPIView):
 
         skills_ids = self.request.query_params.getlist('skills_ids')
         if skills_ids:
-            queryset = queryset.filter(skills__in=skills_ids)
+            queryset = queryset.filter(skills__id__in=skills_ids)
 
-        limit = int(self.request.query_params.get('limit'))
+        limit = self.request.query_params.get('limit')
+        limit = 10 if limit is None else int(limit)
+
         offset = int(self.request.query_params.get('offset'))
+        offset = 0 if offset is None else int(offset)
+
         order_by = self.request.query_params.get('order_by')
-        field, order = order_by.split(',')
-        desk_ask = 1 if order == 'ask' else -1
+        field, order = ('created_at', 'asc') if order_by is None else order_by.split(',')
+
+        desk_ask = 1 if order == 'asc' else -1
 
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 

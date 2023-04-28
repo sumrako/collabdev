@@ -31,6 +31,7 @@ urlpatterns = [
     path('auth/login', LoginView.as_view()),
     path('auth/me', SingleUserView.as_view()),
     path('projects/', ProjectAPIView.as_view()),
+    path('notification/', NotificationAPIView.as_view()),
     path('projects/<int:id>/', ProjectOneAPIView.as_view(), name='project_detail'),
     path('type/', ProjectTypeAPIView.as_view()),
     path('skill/', ProjectSkillAPIView.as_view()),

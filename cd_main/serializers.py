@@ -1,5 +1,5 @@
 from rest_framework import serializers, generics
-from .models import Project, Skill, ProjectTypes, UserProjectRelation
+from .models import Project, Skill, ProjectTypes, UserProjectRelation, Notification
 from .models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
@@ -22,6 +22,12 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ("id", "users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
 
 
 class UserDetailsSerializer(serializers.ModelSerializer):
