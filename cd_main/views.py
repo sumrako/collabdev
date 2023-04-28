@@ -57,6 +57,42 @@ class SingleUserView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class NotificationAPIView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+
+    def get_queryset(self):
+        queryset = Notification.objects.all()
+
+        key_words = self.request.query_params.get('key_words')
+        if key_words is not None:
+            for key_word in key_words:
+                queryset = queryset.filter(text__contains=key_word)
+
+        notification_ids = self.request.query_params.getlist('notification_ids')
+        if notification_ids:
+            queryset = queryset.filter(id__in=list(map(int, notification_ids)))
+
+        request_user_ids = self.request.query_params.getlist('request_user_ids')
+        if request_user_ids:
+            queryset = queryset.filter(request_user__id__in=list(map(int, request_user_ids)))
+
+        response_user_ids = self.request.query_params.getlist('response_user_ids')
+        if response_user_ids:
+            queryset = queryset.filter(response_user__id__in=list(map(int, response_user_ids)))
+
+        status_ids = self.request.query_params.getlist('notification_status_ids')
+        if status_ids:
+            queryset = queryset.filter(notification_status__id__in=list(map(int, status_ids)))
+
+        limit = int(self.request.query_params.get('limit'))
+        offset = int(self.request.query_params.get('offset'))
+        order_by = self.request.query_params.get('order_by')
+        field, order = order_by.split(',')
+        desk_ask = 1 if order == 'ask' else -1
+
+        return queryset.filter.order_by(field)[offset: offset + limit: desk_ask]
+
+
 class UserAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
 
@@ -73,7 +109,7 @@ class UserAPIView(generics.ListAPIView):
 
         skills_ids = self.request.query_params.getlist('skills_ids')
         if skills_ids:
-            queryset = queryset.filter(skills__in=skills_ids)
+            queryset = queryset.filter(skills__id__in=skills_ids)
 
         limit = int(self.request.query_params.get('limit'))
         offset = int(self.request.query_params.get('offset'))
