@@ -133,6 +133,7 @@ class NotificationAPIView(generics.ListAPIView):
 
         return queryset.order_by(field)[offset: offset + limit: desk_ask]
 
+    #Запрос на вступление в проект
     def post(self, serializer):
         request_user = ProjectSerializer(Project.objects.get(id=self.request.data.get('project'))).data.get('users')[0][
             'id']
@@ -216,6 +217,7 @@ class UserAPIView(generics.ListAPIView):
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 
 
+#Возврат юзера с его проектами
 class UserDetailsView(generics.RetrieveAPIView):
     serializer_class = UserDetailsSerializer
 
@@ -267,7 +269,7 @@ class ProjectOneAPIView(generics.RetrieveUpdateDestroyAPIView):
         if request.user.id == project.data.get('users')[0]['id']:
             instance.soft_delete = True
             instance.save()
-            return Response({'message': 'Project deleted successfully'}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
