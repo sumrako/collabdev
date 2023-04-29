@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("username", "first_name", "last_name", "email", "skills", "birth_date", "user_avatar", "projects")
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ("id", "users", "title", "description", "skills", "created_at", "updated_at", "soft_delete", "project_type")
+        fields = '__all__'
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("username", "first_name", "last_name", "email", "skills", "projects", "birth_date", "user_avatar")
+        fields = '__all__'
 
 
 class LoginSerializer(serializers.Serializer):

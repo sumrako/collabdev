@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from .serializers import *
@@ -132,6 +133,24 @@ class NotificationAPIView(generics.ListAPIView):
 
         return queryset.order_by(field)[offset: offset + limit: desk_ask]
 
+    #Запрос на вступление в проект
+    def post(self, serializer):
+        request_user = ProjectSerializer(Project.objects.get(id=self.request.data.get('project'))).data.get('users')[0][
+            'id']
+        data = {'response_user': self.request.user.id, 'project': self.request.data.get('project'),
+                'request_user': request_user, 'text': self.request.data.get('text'),
+                'notification_status': 1}
+        try:
+            Notification.objects.get(request_user=data['request_user'], project=data['project'])
+        except:
+            user_project_relation_serializer = NotificationSerializer(data=data)
+            if user_project_relation_serializer.is_valid():
+                user_project_relation_serializer.save()
+                return Response({'message': 'Запрос отправлен'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Что пошло не так...'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Запрос уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserAPIView(generics.ListAPIView):
     """ API-ручка к пользователям User
@@ -198,13 +217,20 @@ class UserAPIView(generics.ListAPIView):
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
 
 
-class UserDetailsView(generics.ListAPIView):
+#Возврат юзера с его проектами
+class UserDetailsView(generics.RetrieveAPIView):
     serializer_class = UserDetailsSerializer
 
-    def get_queryset(self):
+    def get_object(self):
         username = self.kwargs.get('username')
-        queryset = CustomUser.objects.filter(username=username)
-        return queryset
+        user = CustomUser.objects.get(username=username)
+        user_serializer = UserSerializer(user)
+        new_projects = Project.objects.all().filter(id__in=user_serializer.data.get('projects'), soft_delete__in=[False])
+        user.projects.set(new_projects)
+        queryset = user
+        if queryset is not None:
+            return user
+        raise Http404('Пользователь не найден')
 
 
 class ProjectAPIView(generics.ListAPIView, generics.ListCreateAPIView):
@@ -237,10 +263,15 @@ class ProjectOneAPIView(generics.RetrieveUpdateDestroyAPIView):
             return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
+        self.check_permissions(self.request)
         instance = self.get_object()
-        instance.soft_delete = True
-        instance.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        project = ProjectSerializer(instance)
+        if request.user.id == project.data.get('users')[0]['id']:
+            instance.soft_delete = True
+            instance.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'message': 'Project ID is not in user projects'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectTypeAPIView(generics.ListAPIView):
