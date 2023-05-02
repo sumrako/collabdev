@@ -58,7 +58,7 @@ class SingleUserView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class NotificationAPIView(generics.ListAPIView, generics.UpdateAPIView):
+class NotificationAPIView(generics.ListAPIView):
     """ API-ручка к оповещениям (запросам на присоединение к проекту)
         в ответ на запрос отвечающий следующей спецификации:
 
