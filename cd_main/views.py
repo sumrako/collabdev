@@ -173,7 +173,8 @@ class NotificationOneAPIView(generics.RetrieveUpdateAPIView):
         notification_id = kwargs.get('id')
         notification = NotificationSerializer(instance)
         response_user = UserSerializer(instance.response_user)
-        if notification.data.get('project') in response_user.data.get('projects'):
+        #if notification.data.get('project') in response_user.data.get('projects'):
+        if request.user.id == notification.data.get('response_user'):
             self.update(request, *args, **kwargs)
             data = {'notification_id': notification_id}
             return Response(data)
