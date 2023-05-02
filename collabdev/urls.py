@@ -32,6 +32,7 @@ urlpatterns = [
     path('auth/me', SingleUserView.as_view()),
     path('projects/', ProjectAPIView.as_view()),
     path('notification/', NotificationAPIView.as_view()),
+    path('notification/<int:id>/', NotificationOneAPIView.as_view(), name='notification_detail'),
     path('projects/<int:id>/', ProjectOneAPIView.as_view(), name='project_detail'),
     path('type/', ProjectTypeAPIView.as_view()),
     path('skill/', ProjectSkillAPIView.as_view()),

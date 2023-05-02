@@ -58,7 +58,7 @@ class SingleUserView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class NotificationAPIView(generics.ListAPIView):
+class NotificationAPIView(generics.ListAPIView, generics.UpdateAPIView):
     """ API-ручка к оповещениям (запросам на присоединение к проекту)
         в ответ на запрос отвечающий следующей спецификации:
 
@@ -91,10 +91,8 @@ class NotificationAPIView(generics.ListAPIView):
         Ответ: объекты Notification отвечающие параметрам запросов
     """
     serializer_class = NotificationSerializer
-
     def get_queryset(self):
         queryset = Notification.objects.all()
-
         key_words = self.request.query_params.get('key_words')
         if key_words is not None:
             for key_word in key_words:
@@ -150,12 +148,40 @@ class NotificationAPIView(generics.ListAPIView):
             return Response({'message': 'Что пошло не так...'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': 'Запрос уже существует'}, status=status.HTTP_400_BAD_REQUEST)
-
+    
+class NotificationOneAPIView(generics.RetrieveUpdateAPIView):
+    """ 
+    API к оповещениям (обновление статуса оповещения)
+    в ответ на запрос отвечающий следующей спецификации:
+    
+    PATCH '/notifications/{notification_id}' HTTP/1.1
+    Body json utf8 {
+        text: str, Optional
+        status_id: str, Optional
+    }   
+    Response json utf8 {
+        notification_id: int
+    }
+    """
+    lookup_field = 'id'
+    queryset = Notification.objects.all()
+    serializer_class = NotificationOneSerializer
+    permission_classes = [AllowAny]
+    def patch(self, request, *args, **kwargs):
+        self.check_permissions(self.request)
+        instance = self.get_object()
+        notification_id = kwargs.get('id')
+        notification = NotificationSerializer(instance)
+        response_user = UserSerializer(instance.response_user)
+        if notification.data.get('project') in response_user.data.get('projects'):
+            self.update(request, *args, **kwargs)
+            data = {'notification_id': notification_id}
+            return Response(data)
+        return Response({'message': 'response_user_id is not auth projects'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserAPIView(generics.ListAPIView):
     """ API-ручка к пользователям User
         к запросу отвечающему следующей спецификации:
-
         GET '/users' HTTP/1.1
             Query:
                 user_ids: list[int], Optional - filter
@@ -164,11 +190,9 @@ class UserAPIView(generics.ListAPIView):
                 username: str, Optional - filter
                 email: str, Optional - filter
                 skills_ids: list[int], Optional - filter
-
                 order_by: str = 'fullname desc'
                 limit: int, Optional, default 10, max 10000
                 offset: int, Optional, default 0
-
             Response json utf-8 {
                 [
                     {
@@ -215,7 +239,6 @@ class UserAPIView(generics.ListAPIView):
         desk_ask = 1 if order == 'asc' else -1
 
         return queryset.filter(is_active__in=[True]).order_by(field)[offset: offset + limit: desk_ask]
-
 
 #Возврат юзера с его проектами
 class UserDetailsView(generics.RetrieveAPIView):
