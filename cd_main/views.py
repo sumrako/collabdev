@@ -177,7 +177,7 @@ class NotificationOneAPIView(generics.RetrieveUpdateAPIView):
             self.update(request, *args, **kwargs)
             data = {'notification_id': notification_id}
             return Response(data)
-        return Response({'message': 'response_user_id is not auth projects'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Пользователь не автор проекта'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserAPIView(generics.ListAPIView):
     """ API-ручка к пользователям User
