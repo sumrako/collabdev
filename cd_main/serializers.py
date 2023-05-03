@@ -29,6 +29,10 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__'
 
+class NotificationUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('id', 'notification_status')
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(read_only=True, many=True)
