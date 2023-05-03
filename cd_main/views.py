@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -149,7 +149,7 @@ class NotificationAPIView(generics.ListAPIView):
 
         return Response({'message': 'Запрос уже существует'}, status=status.HTTP_400_BAD_REQUEST)
     
-class NotificationOneAPIView(generics.RetrieveUpdateAPIView):
+class NotificationUpdateAPIView(generics.RetrieveUpdateAPIView):
     """ 
     API к оповещениям (обновление статуса оповещения)
     в ответ на запрос отвечающий следующей спецификации:
@@ -165,19 +165,17 @@ class NotificationOneAPIView(generics.RetrieveUpdateAPIView):
     """
     lookup_field = 'id'
     queryset = Notification.objects.all()
-    serializer_class = NotificationOneSerializer
-    permission_classes = [AllowAny]
+    serializer_class = NotificationUpdateSerializer
+    permission_classes = [IsAuthenticated]
     def patch(self, request, *args, **kwargs):
         self.check_permissions(self.request)
         instance = self.get_object()
         notification_id = kwargs.get('id')
         notification = NotificationSerializer(instance)
-        response_user = UserSerializer(instance.response_user)
-        #if notification.data.get('project') in response_user.data.get('projects'):
         if request.user.id == notification.data.get('response_user'):
             self.update(request, *args, **kwargs)
             data = {'notification_id': notification_id}
-            return Response(data)
+            return Response(data, status=status.HTTP_200_OK)
         return Response({'message': 'Пользователь не автор проекта'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserAPIView(generics.ListAPIView):

@@ -29,7 +29,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__'
 
-class NotificationOneSerializer(serializers.ModelSerializer):
+class NotificationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ('id', 'notification_status')
